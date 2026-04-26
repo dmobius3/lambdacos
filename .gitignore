@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# LaTeX scratch
+*.log
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.synctex.gz
+
+# Local scratch / private
+.env
+*.local.*
+scratch/
+tmp/
+
+# Note: chains/*.h5 are intentionally tracked (they are the deliverable
+# for reproducibility). If they grow too large for git, switch to git-lfs
+# rather than ignoring them.
