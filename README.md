@@ -80,10 +80,10 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 │   ├── wcdm_sn_bao.h5               wCDM comparison (§5.7)
 │   └── clock_exp_model_*.h5         Models A, B, C, D from Appendix A
 ├── figures/
-│   ├── figure1_w_recoveries.pdf     §4.2: w(z) overlays for CPL/BA/JBP/Polynomial
-│   ├── figure2_threshold_scan.pdf   §4.3: recovered (w₀, w_a) vs s₀
-│   ├── figure3_corner.pdf           §5.2: Λcos posterior in (s₀, H₀r_d, M_B)
-│   └── figure4_residuals.pdf        §5.2: Pantheon+ binned residuals for ΛCDM and Λcos
+│   ├── fig1_template_bias_overlay.pdf   §4.2: w(z) overlays for CPL/BA/JBP/Polynomial
+│   ├── fig2_threshold_scan.pdf          §4.3: recovered (w₀, w_a) vs s₀
+│   ├── fig3_lcos_corner.pdf             §5.2: Λcos posterior in (s₀, H₀r_d, M_B)
+│   └── fig4_hubble_residuals.pdf        §5.2: Pantheon+ binned residuals for ΛCDM and Λcos
 └── tables/
     └── clock_exponent_appendix_A_fits.csv
 ```
@@ -156,23 +156,23 @@ After the chains are produced, the figures are generated from the saved chain fi
 ```bash
 # Figure 1 — w(z) recoveries from CPL, BA, JBP, Polynomial
 python scripts/make_figures.py --figure 1 \
-    --output figures/figure1_w_recoveries.pdf
+    --output figures/fig1_template_bias_overlay.pdf
 
 # Figure 2 — CPL threshold scan
 python scripts/make_figures.py --figure 2 \
     --scan tables/threshold_scan.csv \
-    --output figures/figure2_threshold_scan.pdf
+    --output figures/fig2_threshold_scan.pdf
 
 # Figure 3 — corner plot of (s_0, H_0 r_d, M_B)
 python scripts/make_figures.py --figure 3 \
     --chain chains/lambdacos_sn_bao.h5 \
-    --output figures/figure3_corner.pdf
+    --output figures/fig3_lcos_corner.pdf
 
 # Figure 4 — Pantheon+ residuals
 python scripts/make_figures.py --figure 4 \
     --lcdm-chain chains/lambdacdm_sn_bao.h5 \
     --lcos-chain chains/lambdacos_sn_bao.h5 \
-    --output figures/figure4_residuals.pdf
+    --output figures/fig4_hubble_residuals.pdf
 ```
 
 Pre-rendered PDFs are included in `figures/` for convenience.
