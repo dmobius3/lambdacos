@@ -263,4 +263,5 @@ The Pantheon+ and DESI DR2 BAO data products are redistributed under the terms o
 - Issues and questions: please open a [GitHub issue](https://github.com/<user>/lambdacos/issues).
 
 For broader work on the framework, see the framework repository at [github.com/dmobius3/mode-identity-theory](https://github.com/dmobius3/mode-identity-theory). 
+
 For the companion paper on the edge sector (a₀(z)), see [github.com/dmobius3/a0z](https://github.com/dmobius3/a0z).
