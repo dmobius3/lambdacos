@@ -1,8 +1,8 @@
-# Λcos: Phantom Crossing as Template Artifact
+# Λcos: Apparent Phantom Crossing as Template Bias
 
 Code and data for the paper:
 
-**B. Shatto, "Phantom Crossing as Template Artifact: The Λcos Distance-Redshift Model from Bounded Topology" (2026).**
+**B. Shatto, "Apparent Phantom Crossing as Template Bias: A Non-Phantom Test Case with Λcos" (2026).**
 
 This repository contains the analysis pipeline, MCMC chains, and figure-generation scripts needed to reproduce all results in the paper.
 
@@ -10,11 +10,11 @@ This repository contains the analysis pipeline, MCMC chains, and figure-generati
 
 ## Overview
 
-The Λcos model is a bounded, non-phantom dark energy sector derived from a temporal budget identity on $S^3$. It yields the Hubble rate
+The Λcos model is a one-parameter deformation of the fiducial flat ΛCDM expansion history using a bounded auxiliary variable. It yields
 
 $$\frac{H^2(z)}{H_0^2} = \alpha\,(1+z)^3 \;-\; \beta\,(1+z) \;+\; \Omega_\Lambda$$
 
-with $\alpha$, $\beta$ determined by a single new parameter $s_0 = \sin(t_\mathrm{now}/2)$ and the cosmological constant $\Omega_\Lambda$. The model satisfies $w_\mathrm{eff}(z) > -1$ at all redshifts, recovers ΛCDM exactly as $s_0 \to 0$, and predicts a novel negative $(1+z)^1$ contribution to $H^2(z)$.
+with $\alpha$, $\beta$ determined by $s_0$ and a fixed reference $\Omega_\Lambda$. Under the fiducial-matter diagnostic split, the effective residual satisfies $w_\mathrm{eff}(z) > -1$.
 
 Reproducible results in this repository:
 
@@ -35,17 +35,17 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 
 ```bibtex
 @article{Shatto2026Lambdacos,
-  title  = {Phantom Crossing as Template Artifact: The Λcos Distance-Redshift
-            Model from Bounded Topology},
+  title  = {Apparent Phantom Crossing as Template Bias: A Non-Phantom
+            Test Case with Λcos},
   author = {Shatto, B.},
   year   = {2026}
 }
 
 @misc{ShattoLambdacosCode2026,
   author = {Shatto, B.},
-  title  = {Λcos: Code and Data for "Phantom Crossing as Template Artifact"},
+  title  = {Λcos: Code and Data for "Apparent Phantom Crossing as Template Bias"},
   year   = {2026},
-  doi    = {[Zenodo DOI to insert at submission]}
+  doi    = {10.5281/zenodo.19798852}
 }
 ```
 
@@ -93,8 +93,8 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 Python 3.10 or later recommended.
 
 ```bash
-git clone https://github.com/<user>/lambdacos.git
-cd lambdacos
+git clone https://github.com/dmobius3/lambda-cos.git
+cd lambda-cos
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -258,4 +258,4 @@ The Pantheon+ and DESI DR2 BAO data products are redistributed under the terms o
 ## Contact
 
 - Author: B. Shatto, bshatto.pe@gmail.com
-- Issues and questions: please open a [GitHub issue](https://github.com/<user>/lambdacos/issues).
+- Issues and questions: please open a [GitHub issue](https://github.com/dmobius3/lambda-cos/issues).
