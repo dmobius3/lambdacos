@@ -2,7 +2,7 @@
 
 Code and data for the paper:
 
-**B. Shatto, "Phantom Crossing as Template Artifact: The Λcos Distance-Redshift Model from Bounded Topology" (2026).** Submitted to *European Physical Journal Plus*.
+**B. Shatto, "Phantom Crossing as Template Artifact: The Λcos Distance-Redshift Model from Bounded Topology" (2026).**
 
 This repository contains the analysis pipeline, MCMC chains, and figure-generation scripts needed to reproduce all results in the paper.
 
@@ -35,12 +35,10 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 
 ```bibtex
 @article{Shatto2026Lambdacos,
-  title   = {Phantom Crossing as Template Artifact: The Λcos Distance-Redshift
-             Model from Bounded Topology},
-  author  = {Shatto, B.},
-  journal = {European Physical Journal Plus},
-  year    = {2026},
-  note    = {Submitted}
+  title  = {Phantom Crossing as Template Artifact: The Λcos Distance-Redshift
+            Model from Bounded Topology},
+  author = {Shatto, B.},
+  year   = {2026}
 }
 
 @misc{ShattoLambdacosCode2026,
