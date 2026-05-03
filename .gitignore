@@ -40,7 +40,3 @@ Thumbs.db
 *.local.*
 scratch/
 tmp/
-
-# Note: chains/*.h5 are intentionally tracked (they are the deliverable
-# for reproducibility). If they grow too large for git, switch to git-lfs
-# rather than ignoring them.

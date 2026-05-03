@@ -285,6 +285,7 @@ def main():
         "chi2_total": LCDM_CHI2_MIN,
         "delta_chi2": 0.0,
         "acceptance_fraction": np.nan,
+        "tau_max": np.nan,
     }]
 
     for model_label, n_exp, tag in models[1:]:
@@ -305,6 +306,11 @@ def main():
         chain = sampler.get_chain()
         chain_post = chain[BURN:].reshape(-1, 3)
         acceptance = float(np.mean(sampler.acceptance_fraction))
+        try:
+            tau = emcee.autocorr.integrated_time(chain[BURN:], c=5, tol=0)
+            tau_max = float(np.max(tau))
+        except Exception:
+            tau_max = float("nan")
 
         chain_path = RESULTS_DIR / f"clock_exponent_{model_label}_chain.npy"
         post_path = RESULTS_DIR / f"clock_exponent_{model_label}_postburn.csv"
@@ -328,6 +334,7 @@ def main():
             "chi2_total": c_total,
             "delta_chi2": delta,
             "acceptance_fraction": acceptance,
+            "tau_max": tau_max,
         })
 
         print(

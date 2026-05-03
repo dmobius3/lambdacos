@@ -92,6 +92,15 @@ chi2_min = -2 * log_prob.max()
 ΔBIC = Δχ2 + np.log(N_data)
 
 best = post.mean(axis=0)
+
+try:
+    tau = emcee.autocorr.integrated_time(chain[burn:], c=5, tol=0)
+    tau_per_param = [float(t) for t in tau]
+    tau_max = float(np.max(tau))
+except Exception:
+    tau_per_param, tau_max = None, None
+acceptance = float(np.mean(sampler.acceptance_fraction))
+
 json.dump({
     "Om": float(best[0]),
     "w": float(best[1]),
@@ -101,6 +110,9 @@ json.dump({
     "Δχ2": float(Δχ2),
     "ΔAIC": float(ΔAIC),
     "ΔBIC": float(ΔBIC),
+    "tau_per_param": tau_per_param,
+    "tau_max": tau_max,
+    "acceptance": acceptance,
 }, open(out_dir+"wcdm_summary.json","w"))
 
 corner.corner(post, labels=["Ωm","w","H0rd","MB"])

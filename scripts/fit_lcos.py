@@ -84,8 +84,19 @@ pd.DataFrame(post,columns=["s0","H0rd","MB"]).to_csv(out_dir+"lcos_post.csv",ind
 
 s0_95 = np.percentile(post[:,0],95)
 best = post.mean(axis=0)
+
+try:
+    tau = emcee.autocorr.integrated_time(chain[burn:], c=5, tol=0)
+    tau_per_param = [float(t) for t in tau]
+    tau_max = float(np.max(tau))
+except Exception:
+    tau_per_param, tau_max = None, None
+acceptance = float(np.mean(sampler.acceptance_fraction))
+
 json.dump({"s0":float(best[0]),"H0rd":float(best[1]),"MB":float(best[2]),
-           "s0_95":float(s0_95)},
+           "s0_95":float(s0_95),
+           "tau_per_param":tau_per_param,"tau_max":tau_max,
+           "acceptance":acceptance},
           open(out_dir+"lcos_summary.json","w"))
 
 corner.corner(post,labels=["s₀","H0rd","MB"])

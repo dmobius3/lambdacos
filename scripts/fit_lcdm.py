@@ -81,7 +81,18 @@ post = chain[burn:].reshape(-1,3)
 pd.DataFrame(post,columns=["Om","H0rd","MB"]).to_csv(out_dir+"lcdm_post.csv",index=False)
 
 best = post.mean(axis=0)
-json.dump({"Om":float(best[0]),"H0rd":float(best[1]),"MB":float(best[2])},
+
+try:
+    tau = emcee.autocorr.integrated_time(chain[burn:], c=5, tol=0)
+    tau_per_param = [float(t) for t in tau]
+    tau_max = float(np.max(tau))
+except Exception:
+    tau_per_param, tau_max = None, None
+acceptance = float(np.mean(sampler.acceptance_fraction))
+
+json.dump({"Om":float(best[0]),"H0rd":float(best[1]),"MB":float(best[2]),
+           "tau_per_param":tau_per_param,"tau_max":tau_max,
+           "acceptance":acceptance},
           open(out_dir+"lcdm_summary.json","w"))
 
 corner.corner(post,labels=["Ωm","H0rd","MB"])
