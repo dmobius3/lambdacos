@@ -62,16 +62,24 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 │   └── desi_dr2_bao_cov.npy                   Inter-observable covariance for the 13 BAO points
 ├── scripts/
 │   ├── fit_lcdm.py                            Flat ΛCDM MCMC fit (§5.2)
-│   ├── fit_lcos.py                            Λcos MCMC fit, Ω_Λ = 0.685 fixed (§5.2)
+│   ├── fit_lcos.py                            Λcos MCMC fit; --omega_lambda VALUE (default 0.685, §5.2)
 │   ├── fit_wcdm.py                            wCDM MCMC fit (§5.7)
 │   ├── fit_clock_exponents.py                 Clock exponent comparison (Appendix A)
+│   ├── fit_lcdm_cmb.py                        ΛCDM + CMB distance priors; --non_flat (§5.5)
+│   ├── fit_lcos_cmb.py                        Λcos + CMB distance priors; --free_omega_lambda (§5.5)
+│   ├── omega_lambda_scan.py                   Aggregate §5.4 Ω_Λ sensitivity table
 │   ├── template_bias.py                       Template-bias mocks + Fig. 1 (§4.2)
 │   ├── threshold_scan.py                      CPL threshold scan + Fig. 2 (§4.3)
 │   └── make_plots.py                          Λcos corner (Fig. 3) and residuals (Fig. 4)
 ├── results/                                   MCMC chains, post-burn samples, summaries, generated figures
 │   ├── lcdm_chain.npy, lcdm_post.csv, lcdm_summary.json, lcdm_corner.png
 │   ├── lcos_chain.npy, lcos_post.csv, lcos_summary.json, lcos_corner.{png,pdf}
+│   ├── lcos_omegaL_<v>_*.{npy,csv,json,png}   Λcos at alternative Ω_Λ ∈ {0.680, 0.690, 0.700, 0.715} (§5.4)
 │   ├── wcdm_chain.npy, wcdm_post.csv, wcdm_summary.json, wcdm_corner.png
+│   ├── lcdm_cmb_*.{npy,csv,json,png}          Flat ΛCDM + CMB priors (§5.5)
+│   ├── lcdm_cmb_nonflat_*.{npy,csv,json,png}  Non-flat ΛCDM + CMB priors (§5.5)
+│   ├── lcos_cmb_*.{npy,csv,json,png}          Λcos at Ω_Λ = 0.685 + CMB priors (§5.5)
+│   ├── lcos_cmb_freeOL_*.{npy,csv,json,png}   Λcos with Ω_Λ free + CMB priors (§5.5)
 │   ├── clock_exponent_{A,B,C,D}_chain.npy
 │   ├── clock_exponent_{A,B,C,D}_postburn.csv
 │   ├── clock_exponent_results.csv             Appendix A summary across all four models
@@ -79,7 +87,8 @@ If you use this code or data, please cite the paper and the Zenodo archive of th
 │   ├── threshold_scan.csv, threshold_scan.{png,pdf}   §4.3 scan and Fig. 2
 │   └── residuals.{png,pdf}                    Fig. 4
 ├── tables/
-│   └── clock_exponent_appendix_A_fits.csv     Curated Appendix A reference values
+│   ├── clock_exponent_appendix_A_fits.csv     Curated Appendix A reference values
+│   └── omega_lambda_scan.csv                  Aggregated §5.4 Ω_Λ sensitivity table
 └── figures/
     ├── fig1_template_bias_overlay.pdf         §4.2: w(z) overlays for CPL/BA/JBP/Polynomial
     ├── fig2_threshold_scan.pdf                §4.3: recovered (w₀, w_a) vs s₀
@@ -145,13 +154,13 @@ python fit_wcdm.py
 Reference summary values from the deposited posteriors:
 
 ```
-Λcos:    s0        ≈ 0.081  (mean), 0.072 (median)
-         s0 95% UL ≈ 0.181  (flat prior)
-         H0 r_d    ≈ 10007  km/s
+Λcos:    s0        ≈ 0.080 (mean), 0.073 (median)
+         s0 95% UL ≈ 0.180  (flat prior)
+         H0 r_d    ≈ 10010  km/s
          M_B       ≈ -19.353
-         tau_max   ≈ 45.9
+         tau_max   ≈ 43.9
 ΛCDM:    Ω_m       ≈ 0.312
-         H0 r_d    ≈ 10045  km/s
+         H0 r_d    ≈ 10044  km/s
          M_B       ≈ -19.355
          tau_max   ≈ 35.8
 wCDM:    Ω_m       ≈ 0.296
@@ -215,6 +224,52 @@ Models A (n = 0), B (n = −1), C (n = +1), D (n = −1/2) are fit with the same
 - `clock_exponent_results.csv` — summary with one row per model: best-fit parameters, χ² split (SN, BAO, total), Δχ² vs ΛCDM, acceptance fraction
 
 The curated paper-facing values are also deposited at `tables/clock_exponent_appendix_A_fits.csv`.
+
+---
+
+## Reproducing the Ω_Λ sensitivity scan (§5.4)
+
+```bash
+cd scripts
+python fit_lcos.py --omega_lambda 0.680
+python fit_lcos.py --omega_lambda 0.685   # canonical
+python fit_lcos.py --omega_lambda 0.690
+python fit_lcos.py --omega_lambda 0.700
+python fit_lcos.py --omega_lambda 0.715
+python omega_lambda_scan.py
+```
+
+Outputs to `results/lcos_omegaL_<v>_*.{npy,csv,json,png}` for each non-canonical value (the canonical Ω_Λ = 0.685 writes to `lcos_*` without a suffix). The aggregator reads each summary JSON and produces `tables/omega_lambda_scan.csv` with one row per Ω_Λ (s₀ median, s₀ 95% UL, χ²_min, χ²_SN, χ²_BAO, Δχ² vs ΛCDM baseline, τ_max, acceptance).
+
+---
+
+## Reproducing §5.5 (CMB distance priors)
+
+§5.5 adds compressed Planck 2018 distance priors (R = 1.7502 ± 0.0046, ℓ_A = 301.47 ± 0.09) to the SN+BAO likelihood. Four fits in total:
+
+```bash
+cd scripts
+python fit_lcdm_cmb.py                       # Flat ΛCDM + CMB priors  (3 params)
+python fit_lcdm_cmb.py --non_flat            # Non-flat ΛCDM + CMB     (4 params, Ω_k = 1 - Ω_m - Ω_Λ - Ω_r)
+python fit_lcos_cmb.py                       # Λcos at Ω_Λ = 0.685 + CMB priors (3 params)
+python fit_lcos_cmb.py --free_omega_lambda   # Λcos with Ω_Λ free + CMB priors  (4 params)
+```
+
+Outputs:
+
+- `results/lcdm_cmb_*` and `results/lcdm_cmb_nonflat_*` for the two ΛCDM cases
+- `results/lcos_cmb_*` and `results/lcos_cmb_freeOL_*` for the two Λcos cases
+
+Each summary JSON reports the χ² split (SN, BAO, CMB), the best-fit point from a post-MCMC optimizer pass, the integrated autocorrelation time per parameter, the acceptance fraction, and (for the 4-parameter fits) the Ω_Λ posterior quantiles.
+
+The CMB priors are implemented with the standard compressed-prior forms
+
+```
+R   = sqrt(Ω_m) * ∫₀^z* dz/E(z)
+ℓ_A ≈ π c / (H0 r_d) * ∫₀^z* dz/E(z)        (treating r_d ≈ r_s(z*); ~2% offset for standard cosmology)
+```
+
+with z* = 1090 and Ω_r = 9.15 × 10⁻⁵ included in E(z) for the high-z integral.
 
 ---
 
