@@ -1,6 +1,6 @@
-Model,n,Best-fit s0,Best-fit H0rd,Best-fit M_B,chi2_SN,chi2_BAO,chi2_total,Delta_chi2_vs_LCDM_1772p445,Acceptance fraction,Convergence status
-A,0,0.822778,9279.52,-19.27644,1814.78,176.38,1991.16,218.71,0.713,stable
-B,-1,0.001,8555.34,-19.30461,1834.48,1759.91,3594.39,1821.95,0.686,boundary-limited at s0 prior floor; sampler stable
-C,1,0.962282,9219.11,-19.03997,2737.63,6311.46,9049.09,7276.65,0.715,stable
-D,-0.5,0.001†,10010,-19.353,1759.0,13.5,1772.6,0.13,0.61,likelihood maximum at s0 prior floor; posterior median 0.075 (§5.2)
-ΛCDM (baseline),—,(Ω_m = 0.312),10046,-19.355,1759.9,12.6,1772.4,0,—,reference baseline
+Model,n,Best-fit s0,Best-fit H0rd,Best-fit M_B,chi2_SN,chi2_BAO,chi2_total,Delta_chi2_vs_LCDM_1772p456,Acceptance fraction,tau_max,Convergence status
+A,0,0.822764,9279.25,-19.27642,1814.74,176.40,1991.15,218.69,0.647,39.13,stable
+B,-1,0.001,8554.93,-19.30456,1834.47,1759.91,3594.38,1821.93,0.618,45.34,boundary-limited at s0 prior floor; sampler stable
+C,1,0.962272,9219.68,-19.04014,2737.09,6312.00,9049.09,7276.63,0.646,40.02,stable
+D,-0.5,0.001†,10010,-19.353,1759.0,13.5,1772.6,0.11,0.615,46.98,likelihood maximum at s0 prior floor; posterior median 0.072 (§5.2)
+ΛCDM (baseline),—,(Ω_m = 0.312),10046,-19.355,1759.9,12.6,1772.5,0,0.646,35.79,reference baseline

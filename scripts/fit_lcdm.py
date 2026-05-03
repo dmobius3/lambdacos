@@ -34,14 +34,12 @@ zgrid = np.linspace(0, 2.5, 4000)
 def E(z, Om):
     return np.sqrt(Om*(1+z)**3 + (1-Om))
 
-def sn_chi2(Om):
+def sn_chi2(Om, MB):
     Ez = E(zgrid, Om)
     I = cumulative_trapezoid(1/Ez, zgrid, initial=0)
     mu = 5*np.log10((1+z_sn)*(c/70)*np.interp(z_sn,zgrid,I))+25
-    r = m - mu
-    MB = (np.ones_like(r) @ cho_solve(cfac, r)) / (np.ones_like(r) @ cho_solve(cfac, np.ones_like(r)))
-    d = r - MB
-    return d @ cho_solve(cfac, d), MB
+    d = m - MB - mu
+    return d @ cho_solve(cfac, d)
 
 def bao_model(Om, H0rd):
     Ez = E(zgrid, Om)
@@ -64,7 +62,7 @@ def loglike(theta):
     Om,H0rd,MB = theta
     if not (0.01<Om<0.99 and 8000<H0rd<12000 and -20<MB<-18):
         return -np.inf
-    csn,_ = sn_chi2(Om)
+    csn = sn_chi2(Om, MB)
     d = bao_model(Om,H0rd) - bao.value.values
     cbao = d @ Cbao_inv @ d
     return -0.5*(csn+cbao)

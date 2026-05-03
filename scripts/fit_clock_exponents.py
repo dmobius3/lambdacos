@@ -51,7 +51,7 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 OMEGA_LAMBDA = 0.685
 OMEGA_M = 1.0 - OMEGA_LAMBDA
-LCDM_CHI2_MIN = 1772.4
+LCDM_CHI2_MIN = 1772.456
 
 C_LIGHT = 299792.458  # km/s
 H0_SN = 70.0          # absorbed into M_B for SN likelihood

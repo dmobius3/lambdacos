@@ -145,16 +145,21 @@ python fit_wcdm.py
 Reference summary values from the deposited posteriors:
 
 ```
-Λcos:    s0        ≈ 0.080
+Λcos:    s0        ≈ 0.081  (mean), 0.072 (median)
          s0 95% UL ≈ 0.181  (flat prior)
          H0 r_d    ≈ 10007  km/s
-ΛCDM:    Ω_m       ≈ 0.313
-         H0 r_d    ≈ 10043  km/s
+         M_B       ≈ -19.353
+         tau_max   ≈ 45.9
+ΛCDM:    Ω_m       ≈ 0.312
+         H0 r_d    ≈ 10045  km/s
+         M_B       ≈ -19.355
+         tau_max   ≈ 35.8
 wCDM:    Ω_m       ≈ 0.296
-         w         ≈ -0.854
-         Δχ²       ≈ -13.04 vs flat ΛCDM
-         ΔAIC      ≈ -11.04
+         w         ≈ -0.853
+         Δχ²       ≈ -13.05 vs flat ΛCDM
+         ΔAIC      ≈ -11.05
          ΔBIC      ≈  -5.60
+         tau_max   ≈ 44.9
 ```
 
 ---
