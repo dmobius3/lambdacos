@@ -19,7 +19,15 @@ import json
 import numpy as np, pandas as pd
 
 OMEGA_VALUES = [0.680, 0.685, 0.690, 0.700, 0.715]
-LCDM_CHI2_BASELINE = 1772.456  # from fit_lcdm.py optimum (see lcdm_summary.json)
+
+# Read flat ΛCDM baseline chi2_min from its summary, with a hardcoded fallback.
+import os
+LCDM_PATH = "../results/lcdm_summary.json"
+if os.path.exists(LCDM_PATH):
+    with open(LCDM_PATH) as f:
+        LCDM_chi2_baseline = json.load(f)["chi2"]["total"]
+else:
+    LCDM_chi2_baseline = 1772.456
 
 rows = []
 for OL in OMEGA_VALUES:
@@ -35,15 +43,17 @@ for OL in OMEGA_VALUES:
     rows.append({
         "Omega_Lambda": OL,
         "label": label,
-        "s0_median": s["s0_median"],
-        "s0_95UL": s["s0_95"],
-        "best_fit_s0": s["best_fit_s0"],
-        "best_fit_H0rd": s["best_fit_H0rd"],
-        "best_fit_MB": s["best_fit_MB"],
-        "chi2_min": s["chi2_min"],
-        "chi2_SN": s["chi2_SN"],
-        "chi2_BAO": s["chi2_BAO"],
-        "Delta_chi2_vs_LCDM": s["chi2_min"] - LCDM_CHI2_BASELINE,
+        "s0_median": s["posterior_quantiles"]["s0"]["median"],
+        "s0_16": s["posterior_quantiles"]["s0"]["16"],
+        "s0_84": s["posterior_quantiles"]["s0"]["84"],
+        "s0_95UL": s["extras"]["s0_95UL"],
+        "best_fit_s0": s["best_fit"]["s0"],
+        "best_fit_H0rd": s["best_fit"]["H0rd"],
+        "best_fit_MB": s["best_fit"]["MB"],
+        "chi2_min": s["chi2"]["total"],
+        "chi2_SN": s["chi2"]["SN"],
+        "chi2_BAO": s["chi2"]["BAO"],
+        "Delta_chi2_vs_LCDM": s["chi2"]["total"] - LCDM_chi2_baseline,
         "tau_max": s["tau_max"],
         "acceptance": s["acceptance"],
     })
@@ -51,3 +61,4 @@ for OL in OMEGA_VALUES:
 df = pd.DataFrame(rows)
 df.to_csv("../tables/omega_lambda_scan.csv", index=False)
 print(df.to_string(index=False))
+print(f"\nLCDM baseline chi2_total used: {LCDM_chi2_baseline:.4f}")

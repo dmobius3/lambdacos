@@ -6,22 +6,29 @@ Compressed CMB priors (Planck 2018):
     l_A = 301.47 ± 0.09       acoustic scale
     Treated as independent Gaussians.
 
+R   = sqrt(Ω_m) * ∫₀^z* dz/E(z),                    z* = 1090
+l_A ≈ π * c / (H0 r_d) * ∫₀^z* dz/E(z),             treating r_d ≈ r_s(z*)
+                                                    (sub-percent for standard cosmology)
+Radiation Ω_r = 9.15e-5 is included in E(z) for the high-z integral.
+
 Run:
     python fit_lcdm_cmb.py             # flat ΛCDM, 3 params (Ω_m, H0rd, MB)
     python fit_lcdm_cmb.py --non_flat  # non-flat ΛCDM, 4 params (Ω_m, Ω_Λ, H0rd, MB)
-                                       # with Ω_k = 1 - Ω_m - Ω_Λ - Ω_r
 
 Outputs (under ../results/):
     Flat:     lcdm_cmb_chain.npy, lcdm_cmb_post.csv, lcdm_cmb_summary.json, lcdm_cmb_corner.png
     Non-flat: lcdm_cmb_nonflat_*.{npy,csv,json,png}
+
+The summary JSON uses the harmonized schema from _summary.py.
 """
 
-import argparse, json
+import argparse
 import numpy as np, pandas as pd, emcee
 from scipy.integrate import cumulative_trapezoid
 from scipy.linalg import cho_factor, cho_solve
-from scipy.optimize import minimize
 import matplotlib.pyplot as plt, corner
+
+from _summary import write_summary
 
 parser = argparse.ArgumentParser(description="ΛCDM + SN + BAO + CMB distance priors.")
 parser.add_argument("--non_flat", action="store_true",
@@ -91,9 +98,9 @@ def cmb_chi2(Om, OL, H0rd):
     int_to_zstar = float(I[-1])
     R_model = np.sqrt(Om) * int_to_zstar
     lA_model = np.pi * c / H0rd * int_to_zstar
-    return ((R_model - R_obs)/R_err)**2 + ((lA_model - lA_obs)/lA_err)**2
+    return float(((R_model - R_obs)/R_err)**2 + ((lA_model - lA_obs)/lA_err)**2)
 
-def total_chi2(theta):
+def chi2_split(theta):
     if non_flat:
         Om, OL, H0rd, MB = theta
     else:
@@ -102,7 +109,7 @@ def total_chi2(theta):
     csn = sn_chi2(Om, OL, MB)
     cbao = bao_chi2(Om, OL, H0rd)
     ccmb = cmb_chi2(Om, OL, H0rd)
-    return csn + cbao + ccmb, csn, cbao, ccmb
+    return {"total": csn + cbao + ccmb, "SN": csn, "BAO": cbao, "CMB": ccmb}
 
 def loglike(theta):
     if non_flat:
@@ -113,16 +120,19 @@ def loglike(theta):
         Om, H0rd, MB = theta
         if not (0.05 < Om < 0.6 and 8000 < H0rd < 12000 and -20 < MB < -18):
             return -np.inf
-    chi2, _, _, _ = total_chi2(theta)
-    return -0.5 * chi2
+    return -0.5 * chi2_split(theta)["total"]
 
 if non_flat:
+    bounds_check = lambda x: 0.05 < x[0] < 0.6 and 0.4 < x[1] < 0.9 and 8000 < x[2] < 12000 and -20 < x[3] < -18
     p0 = np.array([0.30, 0.70, 10000, -19.3]) + np.array([5e-3, 5e-3, 50, 1e-2])*np.random.randn(nwalkers, 4)
     ndim = 4
+    param_names = ["Om", "OmegaL", "H0rd", "MB"]
     labels = ["Ωm", "Ω_Λ", "H0rd", "MB"]
 else:
+    bounds_check = lambda x: 0.05 < x[0] < 0.6 and 8000 < x[1] < 12000 and -20 < x[2] < -18
     p0 = np.array([0.30, 10000, -19.3]) + np.array([5e-3, 50, 1e-2])*np.random.randn(nwalkers, 3)
     ndim = 3
+    param_names = ["Om", "H0rd", "MB"]
     labels = ["Ωm", "H0rd", "MB"]
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, loglike)
@@ -132,52 +142,24 @@ chain = sampler.get_chain()
 np.save(out_dir+f"{out_prefix}_chain.npy", chain)
 
 post = chain[burn:].reshape(-1, ndim)
-cols = ["Om","OmegaL","H0rd","MB"] if non_flat else ["Om","H0rd","MB"]
-pd.DataFrame(post, columns=cols).to_csv(out_dir+f"{out_prefix}_post.csv", index=False)
+pd.DataFrame(post, columns=param_names).to_csv(out_dir+f"{out_prefix}_post.csv", index=False)
 
-best_mean = post.mean(axis=0)
-
-try:
-    tau = emcee.autocorr.integrated_time(chain[burn:], c=5, tol=0)
-    tau_per_param = [float(t) for t in tau]
-    tau_max = float(np.max(tau))
-except Exception:
-    tau_per_param, tau_max = None, None
+log_prob_post = sampler.get_log_prob()[burn:].reshape(-1)
 acceptance = float(np.mean(sampler.acceptance_fraction))
 
-log_prob = sampler.get_log_prob()[burn:].reshape(-1)
-chain_argmax = post[np.argmax(log_prob)]
-
-if non_flat:
-    bounds_check = lambda x: 0.05 < x[0] < 0.6 and 0.4 < x[1] < 0.9 and 8000 < x[2] < 12000 and -20 < x[3] < -18
-else:
-    bounds_check = lambda x: 0.05 < x[0] < 0.6 and 8000 < x[1] < 12000 and -20 < x[2] < -18
-
-opt = minimize(lambda x: total_chi2(x)[0] if bounds_check(x) else 1e10,
-               chain_argmax, method="Nelder-Mead",
-               options={"xatol":1e-8, "fatol":1e-7, "maxiter":8000})
-chi2_min, chi2_SN_min, chi2_BAO_min, chi2_CMB_min = total_chi2(opt.x)
-
-summary = {
-    "non_flat": bool(non_flat),
-    "best_fit": {labels[i]: float(opt.x[i]) for i in range(ndim)},
-    "posterior_mean": {labels[i]: float(best_mean[i]) for i in range(ndim)},
-    "chi2_min": float(chi2_min),
-    "chi2_SN": float(chi2_SN_min),
-    "chi2_BAO": float(chi2_BAO_min),
-    "chi2_CMB": float(chi2_CMB_min),
-    "tau_per_param": tau_per_param,
-    "tau_max": tau_max,
-    "acceptance": acceptance,
-}
-if non_flat:
-    OL_q = np.percentile(post[:,1], [16, 50, 84])
-    summary["OmegaL_quantiles"] = {"16": float(OL_q[0]), "50": float(OL_q[1]), "84": float(OL_q[2])}
-
-json.dump(summary, open(out_dir+f"{out_prefix}_summary.json", "w"), indent=2, ensure_ascii=False)
+write_summary(
+    out_path=out_dir+f"{out_prefix}_summary.json",
+    model_name="non-flat ΛCDM + CMB priors" if non_flat else "flat ΛCDM + CMB priors",
+    param_names=param_names,
+    post_chain=post,
+    chain_post_burn=chain[burn:],
+    log_prob_post=log_prob_post,
+    chi2_func=chi2_split,
+    bounds_check=bounds_check,
+    acceptance=acceptance,
+)
 
 corner.corner(post, labels=labels)
 plt.savefig(out_dir+f"{out_prefix}_corner.png")
 
-print(f"\nDone. chi2_min = {chi2_min:.4f} (SN={chi2_SN_min:.2f}, BAO={chi2_BAO_min:.2f}, CMB={chi2_CMB_min:.2f})")
-print(f"      tau_max = {tau_max}, acceptance = {acceptance:.3f}")
+print(f"Done. See {out_dir}{out_prefix}_summary.json")
